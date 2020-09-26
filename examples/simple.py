@@ -1,5 +1,5 @@
-from telethon_routing import Bot
-from telethon_routing.utils import wrap_keyboard, wrap_inline
+from routing_telethon import Bot
+from routing_telethon.utils import wrap_keyboard, wrap_inline
 import asyncio
 import random
 import time
