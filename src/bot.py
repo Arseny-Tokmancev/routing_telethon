@@ -8,9 +8,12 @@ from .data import Data
 
 
 class Bot:
-    data = Data
     steps = {}
     callback_commands = {}
+    def __init__(self, data = None):
+        if data == None:
+            data = Data
+        self.data = data
 
     def on(self, step = '*', command = '*', callback = None):
         def inner(function):
@@ -59,6 +62,8 @@ class Bot:
             message_text = event.message.message
             current_step = await data.current_step()
 
+            print(f'map[{current_step}][{message_text}]')
+
             async def find_command_on_step(step):
                 commands = self.steps.get(step)
                 if commands:
@@ -80,6 +85,7 @@ class Bot:
             command = event_data['command']
             arguments = event_data['arguments']
 
+            print(command, arguments)
             func = self.callback_commands.get(command)
             if func:
                 await func(event, data, arguments)

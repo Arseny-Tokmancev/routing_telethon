@@ -4,13 +4,13 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="telethon_routing",
+    name="routing_telethon",
     version="0.0.1",
     author="Arseny Tokmancev",
     description="A package with convenient routing for writing bots for Telethon",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/Arseny-Tokmancev/telethon_routing",
+    url="https://github.com/Arseny-Tokmancev/routing_telethon",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
