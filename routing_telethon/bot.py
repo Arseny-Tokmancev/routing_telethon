@@ -10,15 +10,18 @@ from .data import Data
 class Bot:
     steps = {}
     callback_commands = {}
+    getting_input = {}
     def __init__(self, data = None):
         if data == None:
             data = Data
         self.data = data
 
-    def on(self, step = '*', command = '*', callback = None):
+    def on(self, step = '*', command = '*', callback = None, input_mode = None):
         def inner(function):
             if callback:
                 self.callback_commands[callback] = function
+            elif input_mode:
+                self.getting_input[input_mode] = function
             else:
                 self.steps.setdefault(step, {})
                 self.steps[step][command] = function
@@ -61,13 +64,14 @@ class Bot:
 
             message_text = event.message.message
             current_step = await data.current_step()
+            input_mode = await data.current_input_mode()
 
             print(f'map[{current_step}][{message_text}]')
 
             async def find_command_on_step(step):
                 commands = self.steps.get(step)
                 if commands:
-                    func = commands.get(message_text) or commands.get('*')
+                    func = commands.get(message_text) or self.getting_input.get(input_mode) or commands.get('*')
                     if func:
                         await func(event, data)
                         return True
@@ -81,12 +85,10 @@ class Bot:
         async def callback_query_listener(event) -> None:
             data = await self.data.build(event)
 
-            event_data = json.loads(event.data.decode('utf-8'))
-            command = event_data['command']
-            arguments = event_data['arguments']
+            command, *arguments = json.loads(event.data.decode('utf-8'))
 
             print(command, arguments)
             func = self.callback_commands.get(command)
             if func:
-                await func(event, data, arguments)
+                await func(event, data, *arguments)
         return new_message_listener, callback_query_listener

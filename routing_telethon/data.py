@@ -21,6 +21,7 @@ class Data(Base):
 
     chat_id       = Column(Integer, primary_key=True)
     step          = Column(String, default = 'not setted')
+    input_mode    = Column(String)
 
     @classmethod
     async def build(cls, event):
@@ -42,6 +43,14 @@ class Data(Base):
     async def current_step(self):
         return self.step
 
+    async def change_input_mode(self, input_mode):
+        self.input_mode = input_mode
+        session.add(self)
+        session.commit()
+
+    async def current_input_mode(self):
+        return self.input_mode
+    
 try:
     session
 except NameError:

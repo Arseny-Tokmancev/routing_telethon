@@ -11,10 +11,7 @@ def wrap_inline(buttons):
 
 
 def __wrap_to_inline_button(button):
-    payload = {
-        'command': button[1],
-        'arguments': button[2:] if len(button) > 2 else []
-    }
+    payload = button[1:]
     data = json.dumps(payload)
     return Button.inline(button[0], data=data)
 
