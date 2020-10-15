@@ -17,6 +17,7 @@ def __wrap_to_inline_button(button):
 
 
 def __iterate_over_lists(iter_list, callback):
+    if not iter_list: return None
     ret = []
     for row in iter_list:
         if type(row) == list:

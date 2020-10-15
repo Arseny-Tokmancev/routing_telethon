@@ -1,4 +1,5 @@
 import json
+import traceback
 from telethon import TelegramClient
 from telethon.sessions.memory import MemorySession
 from telethon import events
@@ -6,15 +7,18 @@ from telethon import events
 from .bot_logging import introduce_myself
 from .data import Data
 
+from . import utils
 
 class Bot:
     steps = {}
     callback_commands = {}
     getting_input = {}
+
     def __init__(self, data = None):
         if data == None:
             data = Data
         self.data = data
+
 
     def on(self, step = '*', command = '*', callback = None, input_mode = None):
         def inner(function):
@@ -53,8 +57,8 @@ class Bot:
             async def inner(event):
                 try:
                     await handler(event)
-                except Exception as e:
-                    print(e)
+                except Exception:
+                    traceback.print_exc()
             return inner
 
 
@@ -73,7 +77,15 @@ class Bot:
                 if commands:
                     func = commands.get(message_text) or self.getting_input.get(input_mode) or commands.get('*')
                     if func:
-                        await func(event, data)
+                        result = await func(event, data)
+                        if result != None:
+                            print(type(result))
+                            if type(result) == tuple:
+                                text, buttons = result
+                                await event.respond(
+                                    text,
+                                    buttons = utils.wrap_inline(buttons)
+                                )
                         return True
 
             (await find_command_on_step(current_step)) or \
@@ -90,5 +102,14 @@ class Bot:
             print(command, arguments)
             func = self.callback_commands.get(command)
             if func:
-                await func(event, data, *arguments)
+                result = await func(event, data, *arguments)
+                print(type(result))
+                if result != None:
+                    if type(result) == tuple:
+                        text, buttons = result
+                        await event.edit(
+                            text,
+                            buttons = utils.wrap_inline(buttons)
+                        )
+
         return new_message_listener, callback_query_listener
